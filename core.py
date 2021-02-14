@@ -70,6 +70,7 @@ class core():
         return image
 
     def system(self, video_path, output_path, input_size=320, show=False, CLASSES='tiny_yolo/data/coco.names', score_threshold=0.3, iou_threshold=0.45, rectangle_colors='', Track_only = [], display_tm = False, realTime = True ):
+        #arducam_utils = ArducamUtils(0)
 
         # Definition of the  deep sort parameters
         max_cosine_distance = 0.7
@@ -86,14 +87,17 @@ class core():
         if video_path:
             vid = cv2.VideoCapture(video_path) # detect on video
         else:
-            vid = cv2.VideoCapture(0) # detect from webcam
+            print("\n\n\nSelected device 0")
+            vid = cv2.VideoCapture(0, cv2.CAP_V4L2) # detect from webcam
+            #vid.set(cv2.CAP_PROP_CONVERT_RGB, arducam_utils.convert2rgb)
+            vid.set(cv2.CAP_PROP_FPS, 2)
 
         # by default VideoCapture returns float instead of int
         width = int(vid.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        fps = int(vid.get(cv2.CAP_PROP_FPS))
+        #fps = int(vid.get(cv2.CAP_PROP_FPS))
         codec = cv2.VideoWriter_fourcc(*'MPEG') # defining video writer
-        out = cv2.VideoWriter(output_path, codec, fps, (width, height)) # output_path must be .avi
+        out = cv2.VideoWriter(output_path, codec, 30, (width, height)) # output_path must be .avi
 
         NUM_CLASS = self.read_class_names(CLASSES) # reading coco classes in the form of key value
         num_classes = len(NUM_CLASS)
@@ -182,7 +186,7 @@ class core():
 
             print("Time: {:.2f}ms, Detection FPS: {:.1f}, total FPS: {:.1f}".format(ms, fps, fps2))
             if output_path != '': out.write(self.image)
-            if show:
+            if False:
                 cv2.imshow('Tracked', self.image)
 
                 if cv2.waitKey(25) & 0xFF == ord("q"):
